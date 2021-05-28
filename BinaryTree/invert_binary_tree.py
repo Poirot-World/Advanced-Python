@@ -15,3 +15,24 @@ class Solution:
         
         return root
 
+class Solution:
+    def isSymmetric(self, root: TreeNode) -> bool:
+        if not root:
+            return True
+        
+        def dfs(left, right):
+            
+            if not (left or right):
+                return True
+            if not (left and right):
+                return False
+            if left.val != right.val:
+                return False
+ 	#         outside = dfs(left.left, right.right)
+	#         inside = dfs(left.right, right.left)
+	#        
+	#         return outside and inside            
+            return dfs(left.left, right.right) and dfs(left.right, right.left)
+        
+        return dfs(root.left, root.right)
+
