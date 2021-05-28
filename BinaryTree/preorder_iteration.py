@@ -14,7 +14,7 @@ class Order(object):
 
         re =[]
 
-        if not root: return re
+        if not root: return re  # plus77 终止iter条件
 
         stack =[]
         node = root
