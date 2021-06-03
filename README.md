@@ -1,1 +1,9 @@
-# Advanced Python
+###概述：本仓库记录Python的高级用法</br>
+###内容来源：Fluent Python</br>
+
+对于Fluent Python书中的代码，在py文件和相应的md文件都写了详细的注释。
+md文件提供更佳的阅读体验。
+
+###目录：</br>
+第16章：协程 </br>
+16.1 生成器作为协程使用时的行为和状态
