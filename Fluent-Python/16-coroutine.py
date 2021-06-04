@@ -1,4 +1,4 @@
-
+"""
 #生成器中yield有两个作用： yield item
 #1. 会产出一个值，提供给next()调用方
 #2. 让步，暂停执行生成器，让调用方继续工作
@@ -161,6 +161,11 @@ print(b)  # 15.0
 #例子一:写一个装饰器，功能是primer coroutine
 from functools import wraps
 def coroutine(func):
+    '''
+    @wraps的装饰器事原函数func在被装饰器@routine
+    装饰过后还保留着原有函数的名称和docstring
+    '''
+
     @wraps(func)
     def primer(*args, **kwargs):
         gen = func(*args, **kwargs)
@@ -168,19 +173,97 @@ def coroutine(func):
         return gen
     return primer
 
+@coroutine
+def averager():
+    total = 0.0
+    count = 0
+    average = None
+    while True:
+        term = yield average
+        total += term
+        count += 1
+        average = total/count
+
+coro_avg2 = averager() #已经在装饰器里预激过了
+print(coro_avg2.send(10)) #10.0
+print(coro_avg2.send(30)) #20.0
+
+#第三部分：终止协程和异常处理
+#发送某个哨值，让协程退出
+#generator.throw(...)终止生成器
+#generator.close()让调用方抛出异常GeneratorExit，在生成器中处理
+#如果没有处理这个异常，或者抛出了StopIteration异常，调用方不会报错
+from inspect import getgeneratorstate
+class DemoException(Exception):
+    '''
+    创建新的异常——定义新的类，让它继承自 Exception
+    这里应该有一个pass，但是python3不写也可以
+    '''
+
+def demo_exc_handling():
+    print('-> coroutine started')
+    while True:
+        '''
+        try之后的语句执行发生异常，就执行匹配该异常的except句子，然后顺利往下执行。
+        如果没有异常，将执行else那句。
+        raise可以自己触发异常。raise RuntimeError
+        '''
+        try:
+            x = yield
+        except DemoException:
+            print('*** DemoException handled. Continuing...')
+        else:
+            print('-> coroutine received: {!r}'.format(x))
+        # raise RuntimeError('This line should never run.')
+
+exc_coro = demo_exc_handling()
+next(exc_coro)  #-> coroutine started
+exc_coro.send(11)  #-> coroutine received: 11
+exc_coro.close()  #关闭协程
+print(getgeneratorstate(exc_coro)) #GEN_CLOSED
 
 
+exc_coro2 = demo_exc_handling()
+next(exc_coro2)  #-> coroutine started
+exc_coro2.send(22)  #-> coroutine received: 22
+exc_coro2.throw(DemoException)  #传入DemoException异常，协程不会停止
+#*** DemoException handled. Continuing...
+print(getgeneratorstate(exc_coro2)) #GEN_SUSPENDED
+"""
 
-#调用方如何使用生成器对象的.close()和.throw()方法控制协程
-#hou者的作用是让调用方抛出异常，在生成器中处理；qian者的作用是终止生成器
-#协程终止时如何返回值
+#第四部分：协程终止时如何返回值
+#捕获异常才能获得返回值
+from collections import namedtuple
+Result = namedtuple('Result','count average')
+
+def averager2():
+    total = 0.0
+    count = 0
+    average = None
+    while True:
+        term = yield  # yield右边没有average，因此不会产出值
+        if term is None:
+            break
+        total += term
+        count += 1
+        average = total/count
+    return Result(count,average)
+
+coro_avg2 = averager2()
+next(coro_avg2)
+coro_avg2.send(10)
+coro_avg2.send(30)
+coro_avg2.send(40)
+# coro_avg2.send(None)
+#StopIteration: Result(count=3, average=26.666666666666668)
+try:
+    coro_avg2.send(None)
+except StopIteration as exc:
+    result = exc.value  #好家伙，遇到异常才返回值
+print(result)
+#Result(count=3, average=26.666666666666668)
 #yield from 新句法的用途和语义
 #使用协程管理仿真系统中的并发活动
-
-
-
-
-
 
 
 
