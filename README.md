@@ -6,8 +6,8 @@ md文件提供更佳的阅读体验。
 
 ### 目录：  
 第15章：上下文管理器和else块  
-15.1 第一部分：with语句和上下文管理器    
-15.2 第二部分：contextlib和@contextmanager装饰器  
+15.1 with语句和上下文管理器    
+15.2 contextlib和@contextmanager装饰器  
 15.3 for,while和try语句的else子句  
 第16章：协程  
 16.1 生成器作为协程使用时的行为和状态  
