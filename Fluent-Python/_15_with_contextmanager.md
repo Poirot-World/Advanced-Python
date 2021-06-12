@@ -76,7 +76,7 @@ print(what)
 #-->Bestes Leben
 ```
 
-####例子5：给例子3加上异常管理：必须要用try finally
+#### 例子5：给例子3加上异常管理：必须要用try finally
 ```python
 import contextlib
 @contextlib.contextmanager
@@ -98,9 +98,9 @@ def looking_glass():
 
 ```
 
-###第三部分：for,while和try语句的else子句
+### 第三部分：for,while和try语句的else子句
 注意：else与for, while 或者try搭配使用相当于then。</br>
-####例子1： 在循环中使用else：运行这个循环之后，运行else里面的语句。
+#### 例子1： 在循环中使用else：运行这个循环之后，运行else里面的语句。
 ```python
 for item in items:
     if item.flavor == 'banana':
@@ -109,7 +109,7 @@ else:
     raise ValueError('No banana flavor found!')
 
 ```
-####例子2：仅当try块中没有异常抛出时才运行else块。
+#### 例子2：仅当try块中没有异常抛出时才运行else块。
 ```python
 #try官方文档还指出：“else子句抛出的异常不会由前面的except子句处理。”
 
@@ -121,7 +121,7 @@ else:
     after_call()
 ```
 
-####例子3：先执行while中间的语句，当while条件不满足时，执行else中间的语句
+#### 例子3：先执行while中间的语句，当while条件不满足时，执行else中间的语句
 ```python
 count = 0
 while count < 2:

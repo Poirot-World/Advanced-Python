@@ -262,8 +262,8 @@ except StopIteration as exc:
     result = exc.value  #好家伙，遇到异常才返回值
 print(result)
 #Result(count=3, average=26.666666666666668)
-#yield from 新句法的用途和语义
-#使用协程管理仿真系统中的并发活动
+
+
 
 
 
