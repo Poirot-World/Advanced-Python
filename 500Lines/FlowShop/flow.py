@@ -77,8 +77,15 @@ def solve(data):
     strat_usage = {strategy: 0 for strategy in STRATEGIES}
 
     # Start with a random permutation of the jobs
+    #data是一个m*n的二维数组：m代表任务的个数，n指机器的台数。data[i][j]表示第i个任务在第n台机器操作需要的时间
+    #如果有5个任务，perm是[0,1,2,3,4]
+    #注意,range在Python2中输出的是list类型，在Python3中输出的是range类型，所以要有类型转换
+
     perm = list(range(len(data)))
-    # print("list data ",len(list(data)))
+    #perm = range(len(data))  Python2的写法
+
+
+    #perm中间的元素会调换位置，例如[1, 0, 4, 3, 2]
     random.shuffle(perm)
 
     # Keep track of the best solution
@@ -246,20 +253,41 @@ def compile_solution(data, perm):
     """Compiles a scheduling on the machines given a permutation of jobs"""
 
     num_machines = len(data[0])
-    # print(num_machines)
 
+    #还贴心的提示了不要用[[]]*m哦
+    #注意：[[]]*m是浅拷贝，[[]]表示一个含有空列表的列表，[[]]*m表示m个指向这个空列表元素的引用，修改任何一个元素都会改变整个列表。
+    #machine_times[i]里面内存放第i台机器
     # Note that using [[]] * m would be incorrect, as it would simply
     #  copy the same list m times (as opposed to creating m distinct lists).
     machine_times = [[] for _ in range(num_machines)]
 
     # Assign the initial job to the machines
     machine_times[0].append(0)
+    #machine_times[i]这里计算的是机器perm[0]在前[i]台机器上花的总时间。
+    #第0台作为initial的时候
+
+    # perm [4, 0, 1, 2, 3]
+    # [[0], [58], [114], [134], [219], [272], [307], [360], [401], [470], [483], [569], [641], [649], [698], [745], [832], [890], [908], [976]]
+    # [[0, 58], [58], [114], [134], [219], [272], [307], [360], [401], [470], [483], [569], [641], [649], [698], [745], [832], [890], [908], [976]]
+    # [[0, 58, 112], [58, 114], [114, 197], [134, 219], [219, 290], [272, 367], [307, 403], [360, 456], [401, 494], [470, 521], [483, 608], [569, 684], [641, 775], [649, 789], [698, 818], [745, 832], [832, 909], [890, 941], [908, 1028], [976, 1096]]
+    # [[0, 58, 112, 191], [58, 114, 197], [114, 197, 212], [134, 219, 290], [219, 290, 389], [272, 367, 445], [307, 403, 515], [360, 456, 614], [401, 494, 674], [470, 521, 679], [483, 608, 735], [569, 684, 775], [641, 775, 836], [649, 789, 909], [698, 818, 984], [745, 832, 1031], [832, 909, 1045], [890, 941, 1066], [908, 1028, 1152], [976, 1096, 1190]]
+    # [[0, 58, 112, 191, 207], [58, 114, 197, 207], [114, 197, 212, 296], [134, 219, 290, 389], [219, 290, 389, 445], [272, 367, 445, 534], [307, 403, 515, 614], [360, 456, 614, 674], [401, 494, 674, 697], [470, 521, 679, 754], [483, 608, 735, 818], [569, 684, 775, 836], [641, 775, 836, 909], [649, 789, 909, 984], [698, 818, 984, 1031], [745, 832, 1031, 1094], [832, 909, 1045, 1141], [890, 941, 1066, 1167], [908, 1028, 1152, 1242], [976, 1096, 1190, 1319]]
+
+
+
     for mach in range(1,num_machines):
         # Start the next task in the job when the previous finishes
+        #计算20台机器每个机器的开始第一个任务时间
         machine_times[mach].append(machine_times[mach-1][0] +
                                    data[perm[0]][mach-1])
 
     # Assign the remaining jobs
+    #计算剩下的四个任务，在每台机器上的开始时间
+    #记住：机器m怎么能开始第i个任务呢?
+    # 第一种可能性：机器m已经完成了第[m][i-1]个任务，所以开始的时间是machine_times[mach][i-1] + data[perm[i-1]][mach]
+    # 第二种可能性：机器m-1以及完成了第[m-1][i]个任务，开始的时间是machine_times[mach-1][i] + data[perm[i]][mach-1]
+    #这里一定要想清楚，机器m-1和机器m做同一种任务[i]的时候，前一个做完，后一个才能接着做
+    #以及，机器m做任务i-1和i的时候，同理。所以最后的时间取两者最大值
     for i in range(1, len(perm)):
 
         # The first machine never contains any idle time
@@ -269,6 +297,7 @@ def compile_solution(data, perm):
         # For the remaining machines, the start time is the max of when the
         #  previous task in the job completed, or when the current machine
         #  completes the task for the previous job.
+
         for mach in range(1, num_machines):
             machine_times[mach].append(max(machine_times[mach-1][i] + data[perm[i]][mach-1],
                                         machine_times[mach][i-1] + data[perm[i-1]][mach]))
@@ -308,10 +337,10 @@ def print_solution(data, perm):
 
 
 if __name__ == '__main__':
-
+#sys.argv让我们从外部获得参数，它是一个list，第一个参数是程序本身，这里第二个参数是Taillard problem file
     if len(sys.argv) == 2:
         data = parse_problem(sys.argv[1])
-        # print("it's it !!!!!!!!!!!!!!!!!!!!!")
+
     elif len(sys.argv) == 3:
         data = parse_problem(sys.argv[1], int(sys.argv[2]))
     else:
